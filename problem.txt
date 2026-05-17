@@ -1,0 +1,6 @@
+Design a system that enhances how users experience
+ live sporting events beyond passive viewing . 
+ the solution should create meaningful second-screen
+  interactions during matches , enabling fans to engage with key moments, 
+  participate in real-time activities , and feel more connected 
+  to the game as it unfolds.

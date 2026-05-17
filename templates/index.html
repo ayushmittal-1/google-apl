@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Live Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --card: #111827;
+  --card-border: #1e293b;
+  --primary: #8b5cf6;
+  --primary-glow: rgba(139, 92, 246, 0.3);
+  --accent: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --text: #f1f5f9;
+  --text-dim: #94a3b8;
+  --six-color: #8b5cf6;
+  --four-color: #3b82f6;
+  --wicket-color: #ef4444;
+  --dot-color: #475569;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #c084fc, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-badge {
+  background: linear-gradient(135deg, var(--primary), #6d28d9);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Main Grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+  .main-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: border-color 0.3s;
+}
+
+.card:hover { border-color: rgba(139, 92, 246, 0.3); }
+
+.card-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+/* Scoreboard */
+.scoreboard {
+  grid-column: 1 / -1;
+}
+
+.score-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.team-score {
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.team-runs {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.team-overs {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.match-info {
+  text-align: center;
+  flex: 1;
+}
+
+.match-status {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.target-info {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.this-over {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.ball-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: 2px solid transparent;
+}
+
+.ball-chip.dot { background: var(--dot-color); color: #cbd5e1; }
+.ball-chip.one, .ball-chip.two, .ball-chip.three { background: #1e3a5f; color: #93c5fd; border-color: #3b82f6; }
+.ball-chip.four { background: #1e3a5f; color: #60a5fa; border-color: var(--four-color); box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+.ball-chip.six { background: #2e1065; color: #c084fc; border-color: var(--six-color); box-shadow: 0 0 8px var(--primary-glow); }
+.ball-chip.wicket { background: #450a0a; color: #fca5a5; border-color: var(--wicket-color); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+.ball-chip.wide { background: #422006; color: #fbbf24; }
+
+/* Batsmen */
+.batsmen-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+}
+
+.batsman-card {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--card-border);
+}
+
+.batsman-card.on-strike { border-color: var(--accent); }
+
+.batsman-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.batsman-stats {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.batsman-runs {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+/* Prediction */
+.prediction-section { position: relative; }
+
+.prediction-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pred-btn {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.pred-btn:hover {
+  border-color: var(--primary);
+  background: rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.pred-btn.selected {
+  border-color: var(--primary);
+  background: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 16px var(--primary-glow);
+}
+
+.pred-btn.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.pred-btn .label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.pred-btn.dot-btn { border-color: #334155; }
+.pred-btn.four-btn:hover { border-color: var(--blue); background: rgba(59,130,246,0.1); }
+.pred-btn.six-btn:hover { border-color: var(--primary); background: rgba(139,92,246,0.15); }
+.pred-btn.wicket-btn:hover { border-color: var(--red); background: rgba(239,68,68,0.1); }
+
+.countdown-bar {
+  height: 4px;
+  background: var(--card-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.1s linear;
+  width: 100%;
+}
+
+.prediction-status {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 8px;
+}
+
+/* Commentary */
+.commentary-feed {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentary-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border-left: 3px solid var(--card-border);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  animation: slideIn 0.3s ease;
+}
+
+.commentary-item.key-moment {
+  border-left-color: var(--accent);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.commentary-item.wicket {
+  border-left-color: var(--red);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.commentary-item.boundary {
+  border-left-color: var(--blue);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.commentary-item.six {
+  border-left-color: var(--primary);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.commentary-item .over-label {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+
+.commentary-item .ai-text {
+  color: var(--text);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* AI Insight */
+.insight-box {
+  background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  animation: fadeIn 0.5s ease;
+  display: none;
+}
+
+.insight-box.visible { display: block; }
+
+.insight-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Leaderboard */
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lb-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  font-size: 0.85rem;
+}
+
+.lb-entry.self {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.lb-rank {
+  font-weight: 800;
+  width: 28px;
+  color: var(--accent);
+}
+
+.lb-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.lb-stats {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  margin-right: 12px;
+}
+
+.lb-score {
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* Trivia */
+.trivia-card {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.trivia-card.visible { display: block; }
+
+.trivia-question {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.trivia-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trivia-opt {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.trivia-opt:hover {
+  border-color: var(--primary);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.trivia-opt.correct {
+  border-color: var(--green);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.trivia-opt.wrong {
+  border-color: var(--red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.trivia-fact {
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--accent);
+  display: none;
+}
+
+/* Reactions */
+.reactions-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reaction-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reaction-btn:hover {
+  transform: scale(1.15);
+  background: rgba(255,255,255,0.1);
+}
+
+.reaction-float {
+  position: fixed;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: floatUp 2s ease forwards;
+  z-index: 999;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-200px) scale(1.5); }
+}
+
+/* Prediction Result Toast */
+.toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 200;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+  display: none;
+}
+
+.toast.correct {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  display: block;
+}
+
+.toast.wrong {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  display: block;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Welcome Screen */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.welcome-box {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+}
+
+.welcome-box h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #c084fc, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.welcome-box p {
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+.welcome-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.welcome-input:focus { border-color: var(--primary); }
+
+.welcome-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), #6d28d9);
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.welcome-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
+/* Start Match Button */
+.start-match-btn {
+  display: none;
+  width: 100%;
+  padding: 18px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  grid-column: 1 / -1;
+}
+
+.start-match-btn:hover {
+  background: rgba(245, 158, 11, 0.2);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+/* Big Event Overlay */
+.event-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.event-overlay.visible { display: flex; }
+
+.event-text {
+  font-size: 4rem;
+  font-weight: 900;
+  animation: eventPop 1.5s ease forwards;
+}
+
+.event-text.six {
+  background: linear-gradient(135deg, #c084fc, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.event-text.four {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.event-text.wicket {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes eventPop {
+  0% { transform: scale(0.3); opacity: 0; }
+  40% { transform: scale(1.2); opacity: 1; }
+  60% { transform: scale(1); }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* Match result */
+.result-banner {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px;
+  display: none;
+}
+
+.result-banner.visible { display: block; }
+
+.result-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Merch Store */
+.merch-toggle {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  color: #000;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.merch-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+}
+
+.merch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+
+.merch-overlay.visible { display: flex; }
+
+.merch-modal {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 520px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.merch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.merch-header h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.merch-balance {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.merch-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.merch-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.merch-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--card-border);
+  transition: all 0.2s;
+}
+
+.merch-item:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.03);
+}
+
+.merch-emoji {
+  font-size: 2rem;
+  width: 50px;
+  text-align: center;
+}
+
+.merch-info {
+  flex: 1;
+}
+
+.merch-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.merch-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.merch-buy-btn {
+  background: linear-gradient(135deg, var(--primary), #6d28d9);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  color: white;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.merch-buy-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.merch-buy-btn.owned {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--green);
+  cursor: default;
+}
+
+.merch-buy-btn.cant-afford {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.merch-buy-btn.cant-afford:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.merch-announce-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(245, 158, 11, 0.95);
+  color: #000;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 500;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 3s forwards;
+}
+
+/* AI Agent Chat */
+.agent-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.agent-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.agent-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.agent-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  margin-bottom: 12px;
+}
+
+.agent-msg {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  animation: slideIn 0.3s ease;
+  max-width: 90%;
+}
+
+.agent-msg.user {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  align-self: flex-end;
+  text-align: right;
+}
+
+.agent-msg.agent {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  align-self: flex-start;
+}
+
+.agent-msg .tools-used {
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.agent-msg.typing {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.agent-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.agent-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.agent-input:focus { border-color: var(--primary); }
+
+.agent-send {
+  background: linear-gradient(135deg, var(--primary), #6d28d9);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  color: white;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.agent-send:hover {
+  transform: scale(1.05);
+}
+
+.agent-suggestions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.agent-suggestion {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.agent-suggestion:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+/* Coaching Tip */
+.coaching-tip {
+  background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1));
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  animation: slideIn 0.4s ease;
+  display: none;
+}
+
+.coaching-tip.visible { display: block; }
+
+.coaching-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- Welcome Overlay -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-box">
+    <h2>IPL Live Companion</h2>
+    <p>Predict every ball, earn points, compete with fans in real-time!</p>
+    <input type="text" class="welcome-input" id="usernameInput" placeholder="Enter your name..." maxlength="20" autofocus>
+    <button class="welcome-btn" id="joinBtn" onclick="joinMatch()">Join the Match</button>
+  </div>
+</div>
+
+<!-- Event Overlay -->
+<div class="event-overlay" id="eventOverlay">
+  <div class="event-text" id="eventText"></div>
+</div>
+
+<!-- Merch Store Overlay -->
+<div class="merch-overlay" id="merchOverlay">
+  <div class="merch-modal">
+    <div class="merch-header">
+      <h2>Fan Store</h2>
+      <div class="merch-balance" id="merchBalance">0 credits</div>
+      <button class="merch-close" onclick="closeMerchStore()">&times;</button>
+    </div>
+    <div class="merch-grid" id="merchGrid"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Header -->
+<div class="header">
+  <h1>IPL LIVE COMPANION</h1>
+  <div class="user-info">
+    <button class="merch-toggle" id="merchToggle" onclick="openMerchStore()" style="display:none;">Shop</button>
+    <span id="headerUsername" style="color: var(--text-dim); font-size: 0.85rem;"></span>
+    <div class="score-badge" id="headerScore">0 pts</div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-grid">
+
+  <!-- Start Match -->
+  <button class="start-match-btn" id="startMatchBtn" onclick="startMatch()">
+    Start Live Match — CSK vs MI
+  </button>
+
+  <!-- Scoreboard -->
+  <div class="card scoreboard" id="scoreboard" style="display:none;">
+    <div class="score-main">
+      <div class="team-score">
+        <div class="team-name" id="battingTeamName">CSK</div>
+        <div class="team-runs" id="scoreDisplay">0/0</div>
+        <div class="team-overs" id="oversDisplay">0.0 overs</div>
+      </div>
+      <div class="match-info">
+        <div class="match-status" id="matchStatus">Live</div>
+        <div class="target-info" id="targetInfo"></div>
+        <div class="this-over" id="thisOver"></div>
+      </div>
+      <div class="team-score">
+        <div class="team-name" id="bowlingTeamName">MI</div>
+        <div class="team-runs" id="innings1Score" style="font-size:1.5rem; color: var(--text-dim);">—</div>
+      </div>
+    </div>
+
+    <!-- Batsmen -->
+    <div class="batsmen-row" id="batsmenRow">
+      <div class="batsman-card on-strike" id="strikerCard">
+        <div class="batsman-name" id="strikerName">—</div>
+        <div><span class="batsman-runs" id="strikerRuns">0</span> <span class="batsman-stats" id="strikerStats">(0b)</span></div>
+      </div>
+      <div class="batsman-card" id="nonStrikerCard">
+        <div class="batsman-name" id="nonStrikerName">—</div>
+        <div><span class="batsman-runs" id="nonStrikerRuns">0</span> <span class="batsman-stats" id="nonStrikerStats">(0b)</span></div>
+      </div>
+      <div class="batsman-card">
+        <div class="batsman-name" style="color: var(--text-dim); font-size: 0.8rem;">Bowler</div>
+        <div><span class="batsman-runs" id="bowlerName" style="font-size:1rem;">—</span> <span class="batsman-stats" id="bowlerStats"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prediction -->
+  <div class="card prediction-section" id="predictionCard" style="display:none;">
+    <div class="card-title">Predict Next Ball</div>
+    <div class="insight-box" id="insightBox">
+      <div class="insight-label">AI Insight</div>
+      <div id="insightText"></div>
+    </div>
+    <div class="countdown-bar" id="countdownBar">
+      <div class="countdown-fill" id="countdownFill"></div>
+    </div>
+    <div class="prediction-buttons" id="predictionButtons">
+      <button class="pred-btn dot-btn" onclick="predict('0')">0<div class="label">Dot</div></button>
+      <button class="pred-btn" onclick="predict('1')">1<div class="label">Single</div></button>
+      <button class="pred-btn" onclick="predict('2')">2<div class="label">Double</div></button>
+      <button class="pred-btn" onclick="predict('3')">3<div class="label">Triple</div></button>
+      <button class="pred-btn four-btn" onclick="predict('4')">4<div class="label">Four</div></button>
+      <button class="pred-btn six-btn" onclick="predict('6')">6<div class="label">Six!</div></button>
+      <button class="pred-btn wicket-btn" onclick="predict('W')">W<div class="label">Wicket</div></button>
+      <button class="pred-btn" onclick="predict('WD')">WD<div class="label">Wide</div></button>
+    </div>
+    <div class="prediction-status" id="predictionStatus">Waiting for next ball...</div>
+
+    <!-- Reactions -->
+    <div style="margin-top: 16px;">
+      <div class="card-title">React</div>
+      <div class="reactions-bar">
+        <button class="reaction-btn" onclick="react('🔥')">🔥</button>
+        <button class="reaction-btn" onclick="react('🎉')">🎉</button>
+        <button class="reaction-btn" onclick="react('😱')">😱</button>
+        <button class="reaction-btn" onclick="react('👏')">👏</button>
+        <button class="reaction-btn" onclick="react('💔')">💔</button>
+        <button class="reaction-btn" onclick="react('😤')">😤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Agent Chat -->
+  <div class="card" id="agentCard" style="display:none;">
+    <div class="card-title">
+      <span style="display:flex;align-items:center;gap:8px;">
+        <span class="agent-dot"></span> AI Cricket Agent
+      </span>
+    </div>
+    <div class="coaching-tip" id="coachingTip">
+      <div class="coaching-label">Prediction Coach</div>
+      <div id="coachingText"></div>
+    </div>
+    <div class="agent-suggestions">
+      <button class="agent-suggestion" onclick="askAgent('Who is batting best right now?')">Best batsman?</button>
+      <button class="agent-suggestion" onclick="askAgent('What are the chances of winning from here?')">Win chances?</button>
+      <button class="agent-suggestion" onclick="askAgent('Analyze my prediction patterns')">My predictions</button>
+      <button class="agent-suggestion" onclick="askAgent('What should the batting strategy be now?')">Strategy?</button>
+    </div>
+    <div class="agent-messages" id="agentMessages">
+      <div class="agent-msg agent">Hey! I'm your AI cricket analyst. Ask me anything about the match — I'll pull live data to answer!</div>
+    </div>
+    <div class="agent-input-row">
+      <input type="text" class="agent-input" id="agentInput" placeholder="Ask about the match..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
+      <button class="agent-send" onclick="sendAgentMsg()">Ask</button>
+    </div>
+  </div>
+
+  <!-- Commentary + Trivia -->
+  <div class="card" id="commentaryCard" style="display:none;">
+    <div class="card-title">Live Commentary</div>
+    <div class="commentary-feed" id="commentaryFeed"></div>
+
+    <!-- Trivia -->
+    <div class="trivia-card" id="triviaCard" style="margin-top: 20px;">
+      <div class="card-title" style="color: var(--accent);">Trivia Time!</div>
+      <div class="trivia-question" id="triviaQuestion"></div>
+      <div class="trivia-options" id="triviaOptions"></div>
+      <div class="trivia-fact" id="triviaFact"></div>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="card" id="leaderboardCard" style="display:none;">
+    <div class="card-title">Leaderboard</div>
+    <div class="leaderboard-list" id="leaderboardList">
+      <div style="color: var(--text-dim); font-size: 0.85rem;">Waiting for players...</div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="card result-banner" id="resultBanner">
+    <div class="result-text" id="resultText"></div>
+  </div>
+
+</div>
+
+<script>
+let ws;
+let username = '';
+let myScore = 0;
+let predictionOpen = false;
+let countdownTimer = null;
+
+function joinMatch() {
+  username = document.getElementById('usernameInput').value.trim() || 'Fan_' + Math.floor(Math.random() * 999);
+  document.getElementById('welcomeOverlay').style.display = 'none';
+  document.getElementById('headerUsername').textContent = username;
+  connectWS();
+}
+
+document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') joinMatch();
+});
+
+function connectWS() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}/ws`);
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'set_username', username }));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    handleMessage(data);
+  };
+
+  ws.onclose = () => {
+    setTimeout(connectWS, 2000);
+  };
+}
+
+function handleMessage(data) {
+  switch (data.type) {
+    case 'waiting':
+      document.getElementById('startMatchBtn').style.display = 'block';
+      break;
+
+    case 'state_update':
+      if (data.match_running) {
+        showMatchUI();
+        updateScoreboard(data.state);
+        if (data.leaderboard) updateLeaderboard(data.leaderboard);
+      } else {
+        document.getElementById('startMatchBtn').style.display = 'block';
+      }
+      break;
+
+    case 'match_start':
+      showMatchUI();
+      updateScoreboard(data.state);
+      break;
+
+    case 'prediction_open':
+      predictionOpen = true;
+      enablePredictions();
+      document.getElementById('predictionStatus').textContent = 'Predict now!';
+      startCountdown(data.countdown);
+      updateScoreboard(data.state);
+      break;
+
+    case 'prediction_closed':
+      predictionOpen = false;
+      disablePredictions();
+      document.getElementById('predictionStatus').textContent = 'Ball being bowled...';
+      break;
+
+    case 'prediction_ack':
+      document.getElementById('predictionStatus').textContent = `Locked in: ${data.value}`;
+      break;
+
+    case 'ball_result':
+      updateScoreboard(data.state);
+      addCommentary(data.ball, data.commentary);
+      if (data.leaderboard) updateLeaderboard(data.leaderboard);
+      showBallEvent(data.ball);
+      break;
+
+    case 'prediction_result':
+      showPredictionResult(data);
+      break;
+
+    case 'ai_insight':
+      showInsight(data.insight);
+      break;
+
+    case 'trivia':
+      showTrivia(data.trivia);
+      break;
+
+    case 'trivia_result':
+      myScore = data.total_score;
+      document.getElementById('headerScore').textContent = myScore + ' pts';
+      break;
+
+    case 'reaction':
+      showFloatingReaction(data.emoji);
+      break;
+
+    case 'innings_break':
+      addCommentaryRaw('innings-break', '--- END OF INNINGS ---',
+        `${data.innings1.team}: ${data.innings1.score}/${data.innings1.wickets} (${data.innings1.overs} ov). Target: ${data.target}`);
+      break;
+
+    case 'match_complete':
+      updateScoreboard(data.state);
+      if (data.leaderboard) updateLeaderboard(data.leaderboard);
+      document.getElementById('resultBanner').classList.add('visible');
+      document.getElementById('resultText').textContent = data.result;
+      document.getElementById('predictionStatus').textContent = 'Match Over!';
+      disablePredictions();
+      break;
+
+    case 'leaderboard':
+      updateLeaderboard(data.leaderboard);
+      break;
+
+    case 'agent_typing':
+      showAgentTyping();
+      break;
+
+    case 'agent_reply':
+      showAgentReply(data.message, data.tools_used);
+      break;
+
+    case 'coaching_tip':
+      showCoachingTip(data.tip);
+      break;
+
+    case 'merch_catalog':
+      renderMerchStore(data.items, data.balance, data.inventory);
+      break;
+
+    case 'merch_bought':
+      if (data.success) {
+        myScore = data.balance;
+        document.getElementById('headerScore').textContent = myScore + ' pts';
+        showMerchToast(`Purchased ${data.item.emoji} ${data.item.name}!`);
+        // Refresh store
+        ws.send(JSON.stringify({ type: 'get_merch' }));
+      } else {
+        showMerchToast(data.message);
+      }
+      break;
+
+    case 'merch_announce':
+      showMerchToast(`${data.username} bought ${data.item_emoji} ${data.item_name}!`);
+      break;
+  }
+}
+
+function showMatchUI() {
+  document.getElementById('startMatchBtn').style.display = 'none';
+  document.getElementById('scoreboard').style.display = 'block';
+  document.getElementById('predictionCard').style.display = 'block';
+  document.getElementById('agentCard').style.display = 'block';
+  document.getElementById('commentaryCard').style.display = 'block';
+  document.getElementById('leaderboardCard').style.display = 'block';
+  document.getElementById('merchToggle').style.display = 'inline-block';
+}
+
+function updateScoreboard(state) {
+  if (!state) return;
+  document.getElementById('battingTeamName').textContent = state.batting_team;
+  document.getElementById('bowlingTeamName').textContent = state.bowling_team;
+  document.getElementById('scoreDisplay').textContent = `${state.score}/${state.wickets}`;
+  document.getElementById('oversDisplay').textContent = `${state.overs} overs`;
+
+  if (state.target) {
+    const needed = state.target - state.score;
+    document.getElementById('targetInfo').textContent =
+      `Target: ${state.target} | Need ${needed} off ${120 - state.legal_balls} balls | RRR: ${state.required_rate || '—'}`;
+    document.getElementById('matchStatus').textContent = 'Innings 2 — Live';
+  } else {
+    document.getElementById('targetInfo').textContent = `CRR: ${state.run_rate}`;
+    document.getElementById('matchStatus').textContent = `${state.phase.charAt(0).toUpperCase() + state.phase.slice(1)} — Live`;
+  }
+
+  if (state.innings1) {
+    document.getElementById('innings1Score').textContent =
+      `${state.innings1.score}/${state.innings1.wickets}`;
+  }
+
+  // This over balls
+  const thisOverEl = document.getElementById('thisOver');
+  thisOverEl.innerHTML = '';
+  (state.this_over || []).forEach(b => {
+    const chip = document.createElement('div');
+    chip.className = 'ball-chip ' + getBallClass(b);
+    chip.textContent = b;
+    thisOverEl.appendChild(chip);
+  });
+
+  // Batsmen
+  if (state.striker) {
+    document.getElementById('strikerName').textContent = state.striker.name + ' *';
+    document.getElementById('strikerRuns').textContent = state.striker.runs;
+    document.getElementById('strikerStats').textContent =
+      `(${state.striker.balls}b, ${state.striker.fours}x4, ${state.striker.sixes}x6) SR: ${state.striker.strike_rate}`;
+  }
+  if (state.non_striker) {
+    document.getElementById('nonStrikerName').textContent = state.non_striker.name;
+    document.getElementById('nonStrikerRuns').textContent = state.non_striker.runs;
+    document.getElementById('nonStrikerStats').textContent =
+      `(${state.non_striker.balls}b, ${state.non_striker.fours}x4, ${state.non_striker.sixes}x6)`;
+  }
+  if (state.bowler) {
+    document.getElementById('bowlerName').textContent = state.bowler.name;
+    document.getElementById('bowlerStats').textContent =
+      `${state.bowler.overs} ov, ${state.bowler.runs}-${state.bowler.wickets}, Econ: ${state.bowler.economy}`;
+  }
+}
+
+function getBallClass(b) {
+  if (b === 'W') return 'wicket';
+  if (b === '6') return 'six';
+  if (b === '4') return 'four';
+  if (b === '0') return 'dot';
+  if (b === 'WD') return 'wide';
+  return 'one';
+}
+
+function addCommentary(ball, commentary) {
+  const feed = document.getElementById('commentaryFeed');
+  const item = document.createElement('div');
+  let cls = 'commentary-item';
+  if (ball.is_wicket) cls += ' wicket';
+  else if (ball.is_six) cls += ' six';
+  else if (ball.is_boundary) cls += ' boundary';
+  else if (ball.is_key_moment) cls += ' key-moment';
+  item.className = cls;
+  item.innerHTML = `
+    <div class="over-label">${ball.overs_display} | ${ball.batsman} vs ${ball.bowler}</div>
+    <div class="ai-text">${commentary}</div>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+
+  // Keep max 50 items
+  while (feed.children.length > 50) feed.removeChild(feed.lastChild);
+}
+
+function addCommentaryRaw(cls, title, text) {
+  const feed = document.getElementById('commentaryFeed');
+  const item = document.createElement('div');
+  item.className = 'commentary-item key-moment';
+  item.innerHTML = `<div class="over-label">${title}</div><div class="ai-text">${text}</div>`;
+  feed.insertBefore(item, feed.firstChild);
+}
+
+function showBallEvent(ball) {
+  if (ball.is_six) showEventOverlay('SIX!', 'six');
+  else if (ball.is_wicket) showEventOverlay('WICKET!', 'wicket');
+  else if (ball.is_boundary) showEventOverlay('FOUR!', 'four');
+}
+
+function showEventOverlay(text, cls) {
+  const overlay = document.getElementById('eventOverlay');
+  const textEl = document.getElementById('eventText');
+  textEl.textContent = text;
+  textEl.className = 'event-text ' + cls;
+  overlay.classList.add('visible');
+  setTimeout(() => overlay.classList.remove('visible'), 1500);
+}
+
+function enablePredictions() {
+  document.querySelectorAll('.pred-btn').forEach(btn => {
+    btn.classList.remove('disabled', 'selected');
+  });
+}
+
+function disablePredictions() {
+  document.querySelectorAll('.pred-btn').forEach(btn => {
+    btn.classList.add('disabled');
+  });
+  if (countdownTimer) clearInterval(countdownTimer);
+}
+
+function startCountdown(seconds) {
+  const fill = document.getElementById('countdownFill');
+  let remaining = seconds * 1000;
+  const total = seconds * 1000;
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    remaining -= 50;
+    fill.style.width = Math.max(0, (remaining / total) * 100) + '%';
+    if (remaining <= 0) clearInterval(countdownTimer);
+  }, 50);
+}
+
+function predict(value) {
+  if (!predictionOpen) return;
+  document.querySelectorAll('.pred-btn').forEach(btn => btn.classList.remove('selected'));
+  event.target.closest('.pred-btn').classList.add('selected');
+  ws.send(JSON.stringify({ type: 'prediction', value }));
+}
+
+function showPredictionResult(data) {
+  myScore = data.total_score;
+  document.getElementById('headerScore').textContent = myScore + ' pts';
+
+  const toast = document.getElementById('toast');
+  toast.className = 'toast';
+  if (data.correct) {
+    toast.textContent = `+${data.points} pts! ${data.streak >= 3 ? 'Streak: ' + data.streak + '🔥' : ''}`;
+    toast.classList.add('correct');
+  } else {
+    toast.textContent = 'Wrong prediction!';
+    toast.classList.add('wrong');
+  }
+
+  // Remove and re-add for animation reset
+  const newToast = toast.cloneNode(true);
+  toast.parentNode.replaceChild(newToast, toast);
+}
+
+function showInsight(insight) {
+  const box = document.getElementById('insightBox');
+  document.getElementById('insightText').textContent = insight;
+  box.classList.add('visible');
+  setTimeout(() => box.classList.remove('visible'), 15000);
+}
+
+function showTrivia(trivia) {
+  const card = document.getElementById('triviaCard');
+  card.classList.add('visible');
+  document.getElementById('triviaQuestion').textContent = trivia.question;
+  document.getElementById('triviaFact').style.display = 'none';
+
+  const optionsEl = document.getElementById('triviaOptions');
+  optionsEl.innerHTML = '';
+
+  trivia.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'trivia-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answerTrivia(i, trivia.correct, trivia.fact);
+    optionsEl.appendChild(btn);
+  });
+
+  // Auto-hide after 20 seconds
+  setTimeout(() => card.classList.remove('visible'), 20000);
+}
+
+function answerTrivia(selected, correct, fact) {
+  const opts = document.querySelectorAll('.trivia-opt');
+  opts.forEach((opt, i) => {
+    opt.onclick = null;
+    if (i === correct) opt.classList.add('correct');
+    if (i === selected && selected !== correct) opt.classList.add('wrong');
+  });
+
+  const factEl = document.getElementById('triviaFact');
+  factEl.textContent = fact;
+  factEl.style.display = 'block';
+
+  ws.send(JSON.stringify({
+    type: 'trivia_answer',
+    correct: selected === correct
+  }));
+}
+
+function react(emoji) {
+  ws.send(JSON.stringify({ type: 'reaction', emoji }));
+  showFloatingReaction(emoji);
+}
+
+function showFloatingReaction(emoji) {
+  const el = document.createElement('div');
+  el.className = 'reaction-float';
+  el.textContent = emoji;
+  el.style.left = (Math.random() * 80 + 10) + '%';
+  el.style.bottom = '100px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function startMatch() {
+  ws.send(JSON.stringify({ type: 'start_match' }));
+  document.getElementById('startMatchBtn').style.display = 'none';
+}
+
+// --- AI Agent Chat ---
+
+function sendAgentMsg() {
+  const input = document.getElementById('agentInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addAgentMessage(msg, 'user');
+  ws.send(JSON.stringify({ type: 'agent_chat', message: msg }));
+}
+
+function askAgent(question) {
+  document.getElementById('agentInput').value = question;
+  sendAgentMsg();
+}
+
+function addAgentMessage(text, role, toolsUsed) {
+  const container = document.getElementById('agentMessages');
+  const el = document.createElement('div');
+  el.className = 'agent-msg ' + role;
+
+  let html = text;
+  if (toolsUsed && toolsUsed.length > 0) {
+    const toolNames = toolsUsed.map(t => t.replace(/_/g, ' ')).join(', ');
+    html += `<div class="tools-used">Tools used: ${toolNames}</div>`;
+  }
+  el.innerHTML = html;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showAgentTyping() {
+  const container = document.getElementById('agentMessages');
+  // Remove existing typing indicators
+  container.querySelectorAll('.typing').forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'agent-msg agent typing';
+  el.id = 'agentTyping';
+  el.textContent = 'Analyzing match data...';
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showAgentReply(message, toolsUsed) {
+  const typing = document.getElementById('agentTyping');
+  if (typing) typing.remove();
+  addAgentMessage(message, 'agent', toolsUsed);
+}
+
+// --- Prediction Coach ---
+
+function showCoachingTip(tip) {
+  const el = document.getElementById('coachingTip');
+  document.getElementById('coachingText').textContent = tip;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 20000);
+}
+
+// --- Merch Store ---
+
+function openMerchStore() {
+  ws.send(JSON.stringify({ type: 'get_merch' }));
+  document.getElementById('merchOverlay').classList.add('visible');
+}
+
+function closeMerchStore() {
+  document.getElementById('merchOverlay').classList.remove('visible');
+}
+
+function renderMerchStore(items, balance, inventory) {
+  document.getElementById('merchBalance').textContent = balance + ' credits';
+  const grid = document.getElementById('merchGrid');
+  grid.innerHTML = '';
+
+  items.forEach(item => {
+    const owned = inventory.includes(item.id);
+    const canAfford = balance >= item.price;
+    const el = document.createElement('div');
+    el.className = 'merch-item';
+
+    let btnClass = 'merch-buy-btn';
+    let btnText = `${item.price} pts`;
+    if (owned) { btnClass += ' owned'; btnText = 'Owned'; }
+    else if (!canAfford) { btnClass += ' cant-afford'; btnText = `${item.price} pts`; }
+
+    el.innerHTML = `
+      <div class="merch-emoji">${item.emoji}</div>
+      <div class="merch-info">
+        <div class="merch-name">${item.name}</div>
+        <div class="merch-desc">${item.desc}</div>
+      </div>
+      <button class="${btnClass}" ${owned || !canAfford ? 'disabled' : ''} onclick="buyMerch('${item.id}')">${btnText}</button>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function buyMerch(itemId) {
+  ws.send(JSON.stringify({ type: 'buy_merch', item_id: itemId }));
+}
+
+function showMerchToast(message) {
+  const el = document.createElement('div');
+  el.className = 'merch-announce-toast';
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// --- Leaderboard ---
+
+function updateLeaderboard(board) {
+  const list = document.getElementById('leaderboardList');
+  if (!board || board.length === 0) {
+    list.innerHTML = '<div style="color: var(--text-dim); font-size: 0.85rem;">No players yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  board.forEach((entry, i) => {
+    const el = document.createElement('div');
+    el.className = 'lb-entry' + (entry.username === username ? ' self' : '');
+    el.innerHTML = `
+      <span class="lb-rank">#${i + 1}</span>
+      <span class="lb-name">${entry.username}</span>
+      <span class="lb-stats">${entry.correct}/${entry.total} correct ${entry.streak >= 3 ? '| 🔥' + entry.streak : ''}</span>
+      <span class="lb-score">${entry.score}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+</script>
+</body>
+</html>
